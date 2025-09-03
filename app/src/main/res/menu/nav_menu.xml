@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_carta"
+        android:title="🍴 Carta" />
+    <item
+        android:id="@+id/nav_promos"
+        android:title="🔥 Promociones" />
+    <item
+        android:id="@+id/nav_reservas"
+        android:title="📅 Reservas" />
+    <item
+        android:id="@+id/nav_contacto"
+        android:title="📞 Contacto" />
+</menu>

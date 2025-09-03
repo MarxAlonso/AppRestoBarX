@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#8B0000"
-            android:title="RestoBar El Brasero"
+            android:title="RestoBarX"
             android:titleTextColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent" />
 
