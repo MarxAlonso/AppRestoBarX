@@ -12,4 +12,7 @@
     <item
         android:id="@+id/nav_contacto"
         android:title="📞 Contacto" />
+    <item
+        android:id="@+id/nav_logout"
+        android:title="🚪 Cerrar sesión" />
 </menu>
