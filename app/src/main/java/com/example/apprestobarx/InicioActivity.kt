@@ -34,21 +34,37 @@ class InicioActivity : AppCompatActivity() {
 
         // Manejar clicks en el menú lateral
         navigationView.setNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                // Estos son los mensajes que mostrara cuando le das click a cada uno
-                R.id.nav_platillos -> Toast.makeText(this, "Platillo seleccionada 🍴", Toast.LENGTH_SHORT).show()
+            when (item.itemId) { //Se maneja con enlaces segun en lo que planteamos en el nav_menu
+                R.id.nav_platillos -> {
+                    Toast.makeText(this, "Ya estás en Platillos 🍴", Toast.LENGTH_SHORT).show()
+                }
                 R.id.nav_bebidas -> {
                     val intent = Intent(this, BebidasActivity::class.java)
                     startActivity(intent)
+                    finish() // Para no acumular Activities
                 }
-                R.id.nav_postres -> Toast.makeText(this, "Postre seleccionado 🍴", Toast.LENGTH_SHORT).show()
-                R.id.nav_promos -> Toast.makeText(this, "Promociones 🔥", Toast.LENGTH_SHORT).show()
-                R.id.nav_reservas -> Toast.makeText(this, "Reservas 📅", Toast.LENGTH_SHORT).show()
-                R.id.nav_contacto -> Toast.makeText(this, "Contacto 📞", Toast.LENGTH_SHORT).show()
+                R.id.nav_postres -> {
+                    val intent = Intent(this, PostresActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                /*R.id.nav_promos -> {
+                    val intent = Intent(this, PromosActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                R.id.nav_reservas -> {
+                    val intent = Intent(this, ReservasActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+                R.id.nav_contacto -> {
+                    val intent = Intent(this, ContactoActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }*/
                 R.id.nav_logout -> {
                     Toast.makeText(this, "Cerrando sesión...", Toast.LENGTH_SHORT).show()
-
-                    // Esto al dar click va al login (MainActivity) para cerrar sesion
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
