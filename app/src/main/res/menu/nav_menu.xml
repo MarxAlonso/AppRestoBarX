@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_carta"
-        android:title="🍴 Carta" />
+        android:id="@+id/nav_platillos"
+        android:title="🍴 Platillos" />
+    <item
+        android:id="@+id/nav_bebidas"
+        android:title="🥤 Bebidas" />
+    <item
+        android:id="@+id/nav_postres"
+        android:title="🍰 Postres" />
     <item
         android:id="@+id/nav_promos"
         android:title="🔥 Promociones" />

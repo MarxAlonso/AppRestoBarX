@@ -13,6 +13,12 @@
         android:theme="@style/Theme.AppRestoBarX"
         tools:targetApi="31">
         <activity
+            android:name=".PostresActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BebidasActivity"
+            android:exported="false" />
+        <activity
             android:name=".InicioActivity"
             android:exported="false" />
         <activity
