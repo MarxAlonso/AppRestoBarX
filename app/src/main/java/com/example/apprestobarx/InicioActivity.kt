@@ -9,6 +9,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.widget.addTextChangedListener
 
 class InicioActivity : AppCompatActivity() {
 
@@ -76,6 +77,7 @@ class InicioActivity : AppCompatActivity() {
         }
 
         val recycler = findViewById<RecyclerView>(R.id.recyclerPlatillos)
+        val etBuscar = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etBuscar)
 
         val lista = listOf(
             Platillo("Pollo a la Brasa", "S/ 25.00", R.drawable.cuarto_pollo_brasa),
@@ -83,7 +85,16 @@ class InicioActivity : AppCompatActivity() {
             Platillo("Ceviche Mixto", "S/ 30.00", R.drawable.plato_ceviche)
         )
 
+        val adapter = PlatilloAdapter(lista.toMutableList())
         recycler.layoutManager = LinearLayoutManager(this)
-        recycler.adapter = PlatilloAdapter(lista)
+        recycler.adapter = adapter
+
+        // Buscar en tiempo real
+        etBuscar.addTextChangedListener { texto ->
+            val query = texto?.toString() ?: ""
+            val filtrados = lista.filter { it.nombre.contains(query, ignoreCase = true) }
+            adapter.updateList(filtrados)
+        }
+
     }
 }

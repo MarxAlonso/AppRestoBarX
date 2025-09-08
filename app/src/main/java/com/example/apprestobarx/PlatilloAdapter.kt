@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class PlatilloAdapter(private val listaPlatillos: List<Platillo>) :
+class PlatilloAdapter(private var listaPlatillos: List<Platillo>) :
     RecyclerView.Adapter<PlatilloAdapter.PlatilloViewHolder>() {
 
     class PlatilloViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -30,4 +30,10 @@ class PlatilloAdapter(private val listaPlatillos: List<Platillo>) :
     }
 
     override fun getItemCount(): Int = listaPlatillos.size
+
+    // Para actualizar la lista al filtrar
+    fun updateList(nuevaLista: List<Platillo>) {
+        listaPlatillos = nuevaLista
+        notifyDataSetChanged()
+    }
 }
