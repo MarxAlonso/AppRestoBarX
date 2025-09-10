@@ -1,6 +1,8 @@
 package com.example.apprestobarx
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -75,6 +77,37 @@ class InicioActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
             true
         }
+
+        //Apartado de carrusel de imagenes
+        val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPagerCarrusel)
+
+        // Lista de imágenes para el carrusel
+        val imagenesCarrusel = listOf(
+            R.drawable.cuarto_pollo_brasa,
+            R.drawable.plato_lomo_saltado,
+            R.drawable.plato_ceviche
+        )
+
+        // Textos dinámicos para el carrusel
+        val textosCarrusel = listOf(
+            "Bienvenido a RestoBarX 🍽️",
+            "Disfruta la vista de nuestros platillos 👨‍🍳",
+            "Sabores únicos, tradición y frescura 🔥"
+        )
+
+        val carruselAdapter = CarruselAdapter(imagenesCarrusel, textosCarrusel)
+        viewPager.adapter = carruselAdapter
+
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = object : Runnable {
+            override fun run() {
+                val nextItem = (viewPager.currentItem + 1) % imagenesCarrusel.size
+                viewPager.setCurrentItem(nextItem, true)
+                handler.postDelayed(this, 5000) // cada 3 segundos
+            }
+        }
+        handler.postDelayed(runnable, 5000)
+
 
         val recycler = findViewById<RecyclerView>(R.id.recyclerPlatillos)
         val etBuscar = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etBuscar)

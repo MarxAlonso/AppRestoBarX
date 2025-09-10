@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"> <!-- match_parent -->
+
+    <ImageView
+        android:id="@+id/imgCarrusel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="Imagen de carrusel" />
+
+    <!-- Texto sobre la imagen -->
+    <TextView
+        android:id="@+id/tvTextoCarrusel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bienvenido a RestoBarX 🍽️"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:shadowColor="#AA000000"
+        android:shadowRadius="6"
+        android:layout_gravity="center" />
+</FrameLayout>
