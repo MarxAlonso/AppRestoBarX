@@ -85,29 +85,39 @@ class InicioActivity : AppCompatActivity() {
         //Apartado de carrusel de imagenes
         val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPagerCarrusel)
 
-        // Lista de imágenes para el carrusel
-        val imagenesCarrusel = listOf(
-            R.drawable.cuarto_pollo_brasa,
-            R.drawable.plato_lomo_saltado,
-            R.drawable.plato_ceviche
+        // 1. Crea una ÚNICA lista usando la data class CarruselItem.
+        //    Aquí puedes poner textos más atractivos para cada imagen.
+        val listaCarrusel = listOf(
+            CarruselItem(
+                R.drawable.cuarto_pollo_brasa,
+                "El Sabor de Casa 🍗",
+                "Nuestro Pollo a la Brasa, jugoso y dorado."
+            ),
+            CarruselItem(
+                R.drawable.plato_lomo_saltado,
+                "Tradición Peruana 🇵🇪",
+                "El Lomo Saltado que te transporta."
+            ),
+            CarruselItem(
+                R.drawable.plato_ceviche,
+                "Frescura del Mar 🌊",
+                "Ceviche preparado al momento para ti."
+            )
         )
 
-        // Textos dinámicos para el carrusel
-        val textosCarrusel = listOf(
-            "Bienvenido a RestoBarX 🍽️",
-            "Disfruta la vista de nuestros platillos 👨‍🍳",
-            "Sabores únicos, tradición y frescura 🔥"
-        )
-
-        val carruselAdapter = CarruselAdapter(imagenesCarrusel, textosCarrusel)
+        // 2. Pasa la nueva lista de items al adaptador.
+        val carruselAdapter = CarruselAdapter(listaCarrusel)
         viewPager.adapter = carruselAdapter
 
+        // Lógica para el desplazamiento automático
         val handler = Handler(Looper.getMainLooper())
         val runnable = object : Runnable {
             override fun run() {
-                val nextItem = (viewPager.currentItem + 1) % imagenesCarrusel.size
-                viewPager.setCurrentItem(nextItem, true)
-                handler.postDelayed(this, 5000) // cada 3 segundos
+                if (carruselAdapter.itemCount > 0) {
+                    val nextItem = (viewPager.currentItem + 1) % carruselAdapter.itemCount
+                    viewPager.setCurrentItem(nextItem, true) // El 'true' hace el scroll suave
+                }
+                handler.postDelayed(this, 5000) // Cambia de imagen cada 5 segundos
             }
         }
         handler.postDelayed(runnable, 5000)

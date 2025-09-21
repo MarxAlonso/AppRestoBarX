@@ -7,14 +7,21 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class CarruselAdapter(
-    private val imagenes: List<Int>,
-    private val textos: List<String>
-) : RecyclerView.Adapter<CarruselAdapter.CarruselViewHolder>() {
+// Data class para los items
+data class CarruselItem(
+    val imagen: Int,
+    val titulo: String,
+    val subtitulo: String
+)
+
+// Constructor del Adapter para que reciba una lista de CarruselItem
+class CarruselAdapter(private val items: List<CarruselItem>) : RecyclerView.Adapter<CarruselAdapter.CarruselViewHolder>() {
 
     inner class CarruselViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imgCarrusel: ImageView = view.findViewById(R.id.imgCarrusel)
-        val tvTextoCarrusel: TextView = view.findViewById(R.id.tvTextoCarrusel)
+        // Esto hace referencia a los nuevos TextViews
+        val tvTitulo: TextView = view.findViewById(R.id.tvTituloCarrusel)
+        val tvSubtitulo: TextView = view.findViewById(R.id.tvSubtituloCarrusel)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarruselViewHolder {
@@ -23,9 +30,12 @@ class CarruselAdapter(
     }
 
     override fun onBindViewHolder(holder: CarruselViewHolder, position: Int) {
-        holder.imgCarrusel.setImageResource(imagenes[position])
-        holder.tvTextoCarrusel.text = textos[position]
+        val item = items[position]
+        holder.imgCarrusel.setImageResource(item.imagen)
+        // Asigna los textos al item actual
+        holder.tvTitulo.text = item.titulo
+        holder.tvSubtitulo.text = item.subtitulo
     }
 
-    override fun getItemCount(): Int = imagenes.size
+    override fun getItemCount(): Int = items.size
 }

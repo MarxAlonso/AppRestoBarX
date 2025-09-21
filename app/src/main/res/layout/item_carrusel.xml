@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"> <!-- match_parent -->
+    android:layout_height="match_parent"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    android:layout_marginHorizontal="8dp"> <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imgCarrusel"
@@ -10,16 +16,39 @@
         android:scaleType="centerCrop"
         android:contentDescription="Imagen de carrusel" />
 
-    <!-- Texto sobre la imagen -->
-    <TextView
-        android:id="@+id/tvTextoCarrusel"
-        android:layout_width="wrap_content"
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/gradient_overlay" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bienvenido a RestoBarX 🍽️"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:shadowColor="#AA000000"
-        android:shadowRadius="6"
-        android:layout_gravity="center" />
+        android:orientation="vertical"
+        android:layout_gravity="bottom"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvTituloCarrusel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Noches de Parrilla 🔥"
+            android:textColor="@color/accent_gold"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+        <TextView
+            android:id="@+id/tvSubtituloCarrusel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Los mejores cortes, solo para ti."
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+    </LinearLayout>
 </FrameLayout>
+</androidx.cardview.widget.CardView>
