@@ -38,4 +38,8 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+
+        <color name="transparent_white">#26FFFFFF</color>
+        <color name="button_bg">#660015</color>
+        <color name="button_end_bg">#450716</color>
 </resources>

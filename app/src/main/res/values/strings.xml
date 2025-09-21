@@ -1,5 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AppRestoBarX</string>
     <string name="open">Abrir menú</string>
     <string name="close">Cerrar menú</string>
+        <string name="app_name">RestoBarX</string>
+        <string name="welcome_message">Bienvenido al Restaurante</string>
+        <string name="logo_description">Logo de RestoBarX</string>
+        <string name="hint_usuario">Usuario</string>
+        <string name="hint_password">Contraseña</string>
+        <string name="btn_login">INGRESAR</string>
 </resources>
