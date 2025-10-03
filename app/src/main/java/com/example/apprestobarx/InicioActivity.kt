@@ -6,7 +6,6 @@ import android.os.Looper
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +13,10 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.core.widget.addTextChangedListener
+import com.example.apprestobarx.controllers.PlatilloAdapter
+import com.example.apprestobarx.models.Platillo
+import com.example.apprestobarx.network.DishesResponse
+import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.textfield.TextInputEditText
 
 class InicioActivity : AppCompatActivity() {
@@ -22,6 +24,7 @@ class InicioActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var handler: Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,42 +37,25 @@ class InicioActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        // Toggle de hamburguesa para abrir y cerrar Drawer (el menu de opciones)
+        // Toggle de hamburguesa
         toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Manejar clicks en el menú lateral
+        // Manejo de navegación lateral
         navigationView.setNavigationItemSelectedListener { item ->
-            when (item.itemId) { //Se maneja con enlaces segun en lo que planteamos en el nav_menu
+            when (item.itemId) {
                 R.id.nav_platillos -> {
                     Toast.makeText(this, "Ya estás en Platillos 🍴", Toast.LENGTH_SHORT).show()
                 }
                 R.id.nav_bebidas -> {
-                    val intent = Intent(this, BebidasActivity::class.java)
-                    startActivity(intent)
-                    finish() // Para no acumular Activities
+                    startActivity(Intent(this, BebidasActivity::class.java))
+                    finish()
                 }
                 R.id.nav_postres -> {
-                    val intent = Intent(this, PostresActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, PostresActivity::class.java))
                     finish()
                 }
-                /*R.id.nav_promos -> {
-                    val intent = Intent(this, PromosActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-                R.id.nav_reservas -> {
-                    val intent = Intent(this, ReservasActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-                R.id.nav_contacto -> {
-                    val intent = Intent(this, ContactoActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }*/
                 R.id.nav_logout -> {
                     Toast.makeText(this, "Cerrando sesión...", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
@@ -82,11 +68,8 @@ class InicioActivity : AppCompatActivity() {
             true
         }
 
-        //Apartado de carrusel de imagenes
+        // Carrusel de imágenes
         val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPagerCarrusel)
-
-        // 1. Crea una ÚNICA lista usando la data class CarruselItem.
-        //    Aquí puedes poner textos más atractivos para cada imagen.
         val listaCarrusel = listOf(
             CarruselItem(
                 R.drawable.cuarto_pollo_brasa,
@@ -105,44 +88,51 @@ class InicioActivity : AppCompatActivity() {
             )
         )
 
-        // 2. Pasa la nueva lista de items al adaptador.
         val carruselAdapter = CarruselAdapter(listaCarrusel)
         viewPager.adapter = carruselAdapter
 
-        // Lógica para el desplazamiento automático
-        val handler = Handler(Looper.getMainLooper())
+        // Auto-scroll del carrusel
+        handler = Handler(Looper.getMainLooper())
         val runnable = object : Runnable {
             override fun run() {
                 if (carruselAdapter.itemCount > 0) {
                     val nextItem = (viewPager.currentItem + 1) % carruselAdapter.itemCount
-                    viewPager.setCurrentItem(nextItem, true) // El 'true' hace el scroll suave
+                    viewPager.setCurrentItem(nextItem, true)
                 }
-                handler.postDelayed(this, 5000) // Cambia de imagen cada 5 segundos
+                handler.postDelayed(this, 5000)
             }
         }
         handler.postDelayed(runnable, 5000)
 
-
+        // Lista de platillos con buscador
         val recycler = findViewById<RecyclerView>(R.id.recyclerPlatillos)
-        val etBuscar = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etBuscar)
+        val etBuscar = findViewById<TextInputEditText>(R.id.etBuscar)
 
-        // Lista expandida de platillos
-        val lista = listOf(
-            Platillo("Pollo a la Brasa", "S/ 25.00", R.drawable.cuarto_pollo_brasa),
-            Platillo("Lomo Saltado", "S/ 20.00", R.drawable.plato_lomo_saltado),
-            Platillo("Ceviche Mixto", "S/ 30.00", R.drawable.plato_ceviche),
-            Platillo("Arroz con Pollo", "S/ 18.00", R.drawable.cuarto_pollo_brasa),
-            Platillo("Ají de Gallina", "S/ 22.00", R.drawable.plato_lomo_saltado),
-            Platillo("Anticuchos", "S/ 15.00", R.drawable.plato_ceviche)
-        )
-
-        val adapter = PlatilloAdapter(lista.toMutableList())
+        val adapter = PlatilloAdapter(emptyList())
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
 
-        // Búsqueda mejorada en tiempo real
-         setupSearchFunctionality(etBuscar, lista, adapter)
+        // Llamada a la API
+        RetrofitClient.instance.getPlatillos().enqueue(object : retrofit2.Callback<DishesResponse> {
+            override fun onResponse(
+                call: retrofit2.Call<DishesResponse>,
+                response: retrofit2.Response<DishesResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val lista = response.body()?.data ?: emptyList()
+                    adapter.updateList(lista)
 
+                    // Activar buscador sobre la lista descargada
+                    setupSearchFunctionality(etBuscar, lista, adapter)
+                } else {
+                    Toast.makeText(this@InicioActivity, "Error al obtener platillos", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<DishesResponse>, t: Throwable) {
+                Toast.makeText(this@InicioActivity, "Fallo: ${t.message}", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     private fun setupSearchFunctionality(
@@ -152,12 +142,10 @@ class InicioActivity : AppCompatActivity() {
     ) {
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s?.toString()?.trim() ?: ""
                 filterPlatillos(query, originalList, adapter)
             }
-            
             override fun afterTextChanged(s: Editable?) {}
         })
     }
@@ -167,15 +155,20 @@ class InicioActivity : AppCompatActivity() {
             originalList
         } else {
             originalList.filter { platillo ->
-                platillo.nombre.contains(query, ignoreCase = true) ||
-                platillo.precio.contains(query, ignoreCase = true)
+                platillo.name.contains(query, ignoreCase = true) ||
+                        platillo.price.toString().contains(query, ignoreCase = true)
             }
         }
         adapter.updateList(filteredList)
-        
-        // Mostrar mensaje si no hay resultados
+
         if (filteredList.isEmpty() && query.isNotEmpty()) {
             Toast.makeText(this, "No se encontraron platillos con '$query'", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Limpieza del handler para evitar fugas de memoria
+        handler.removeCallbacksAndMessages(null)
     }
 }

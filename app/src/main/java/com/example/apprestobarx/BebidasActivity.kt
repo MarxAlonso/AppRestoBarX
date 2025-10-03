@@ -2,19 +2,29 @@ package com.example.apprestobarx
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.apprestobarx.controllers.BebidasAdapter
+import com.example.apprestobarx.models.Bebidas
+import com.example.apprestobarx.network.BebidasResponse
+import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class BebidasActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var recycler: RecyclerView
+    private lateinit var adapter: BebidasAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,27 +33,22 @@ class BebidasActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawerLayoutBebidas)
         navigationView = findViewById(R.id.navigationViewBebidas)
 
-        // Toolbar
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbarBebidas)
         setSupportActionBar(toolbar)
 
-        // Botón hamburguesa
         toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Acciones del menú lateral
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_platillos -> {
-                    val intent = Intent(this, InicioActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, InicioActivity::class.java))
                     finish()
                 }
                 R.id.nav_bebidas -> Toast.makeText(this, "Ya estás en Bebidas 🥤", Toast.LENGTH_SHORT).show()
                 R.id.nav_postres -> {
-                    val intent = Intent(this, PostresActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, PostresActivity::class.java))
                     finish()
                 }
                 R.id.nav_logout -> {
@@ -57,14 +62,31 @@ class BebidasActivity : AppCompatActivity() {
             true
         }
 
-        // Lista de bebidas
-        val recycler = findViewById<RecyclerView>(R.id.recyclerBebidas)
-        val listaBebidas = listOf(
-            Platillo("Chicha Morada", "S/ 18.00", R.drawable.jarra_chicha_morada),
-            Platillo("Inca Kola 1L", "S/ 10.00", R.drawable.bebida_inca_kola),
-            Platillo("Cerveza Cusqueña", "S/ 12.00", R.drawable.bebida_cusquena)
-        )
+        recycler = findViewById(R.id.recyclerBebidas)
         recycler.layoutManager = LinearLayoutManager(this)
-        recycler.adapter = PlatilloAdapter(listaBebidas)
+        adapter = BebidasAdapter(emptyList())
+        recycler.adapter = adapter
+
+        cargarBebidas()
     }
+
+    private fun cargarBebidas() {
+        RetrofitClient.instance.getBebidas().enqueue(object : Callback<BebidasResponse> {
+            override fun onResponse(call: Call<BebidasResponse>, response: Response<BebidasResponse>) {
+                if (response.isSuccessful) {
+                    val lista = response.body()?.data ?: emptyList()
+                    adapter.updateList(lista)
+                } else {
+                    Toast.makeText(this@BebidasActivity, "Error al obtener bebidas", Toast.LENGTH_SHORT).show()
+                    Log.e("API", "Error: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<BebidasResponse>, t: Throwable) {
+                Toast.makeText(this@BebidasActivity, "Fallo en la conexión", Toast.LENGTH_SHORT).show()
+                Log.e("API", "Failure: ${t.message}")
+            }
+        })
+    }
+
 }

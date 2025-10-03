@@ -1,4 +1,4 @@
-package com.example.apprestobarx
+package com.example.apprestobarx.controllers
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.apprestobarx.R
+import com.example.apprestobarx.models.Platillo
 
 class PlatilloAdapter(private var listaPlatillos: List<Platillo>) :
     RecyclerView.Adapter<PlatilloAdapter.PlatilloViewHolder>() {
@@ -24,14 +27,18 @@ class PlatilloAdapter(private var listaPlatillos: List<Platillo>) :
 
     override fun onBindViewHolder(holder: PlatilloViewHolder, position: Int) {
         val platillo = listaPlatillos[position]
-        holder.imgPlatillo.setImageResource(platillo.imagen)
-        holder.tvNombre.text = platillo.nombre
-        holder.tvPrecio.text = platillo.precio
+
+        holder.tvNombre.text = platillo.name
+        holder.tvPrecio.text = "S/ ${platillo.price}"
+
+        Glide.with(holder.itemView.context)
+            .load(platillo.imageUrl)
+            .placeholder(R.drawable.ic_launcher_foreground)
+            .into(holder.imgPlatillo)
     }
 
     override fun getItemCount(): Int = listaPlatillos.size
 
-    // Para actualizar la lista al filtrar
     fun updateList(nuevaLista: List<Platillo>) {
         listaPlatillos = nuevaLista
         notifyDataSetChanged()

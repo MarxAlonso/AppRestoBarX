@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -49,4 +50,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.cardview)
+    implementation(libs.retrofit)
+    implementation(libs.recyclerview)
+    implementation(libs.convertergson)
+    implementation(libs.glide)
+    kapt(libs.glideCompiler)
+
 }

@@ -2,19 +2,28 @@ package com.example.apprestobarx
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.apprestobarx.controllers.PostresAdapter
+import com.example.apprestobarx.models.Postres
+import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class PostresActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var recycler: RecyclerView
+    private lateinit var adapter: PostresAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +66,26 @@ class PostresActivity : AppCompatActivity() {
             true
         }
 
-        // Lista de postres
-        val recycler = findViewById<RecyclerView>(R.id.recyclerPostres)
-        val listaPostres = listOf(
-            Platillo("Suspiro a la Limeña", "S/ 12.00", R.drawable.postre_suspiro_limeno),
-            Platillo("Mazamorra Morada", "S/ 8.00", R.drawable.postre_mazamorra_morada),
-            Platillo("Helado Artesanal", "S/ 10.00", R.drawable.postre_helado_artesanal)
-        )
+        // Configurar RecyclerView
+        recycler = findViewById(R.id.recyclerPostres)
         recycler.layoutManager = LinearLayoutManager(this)
-        recycler.adapter = PlatilloAdapter(listaPostres)
+        adapter = PostresAdapter(emptyList())
+        recycler.adapter = adapter
+
+        // Llamar a la API de postres
+        RetrofitClient.instance.getPostres().enqueue(object : Callback<List<Postres>> {
+            override fun onResponse(call: Call<List<Postres>>, response: Response<List<Postres>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    adapter.updateList(response.body()!!)
+                } else {
+                    Toast.makeText(this@PostresActivity, "Error al cargar postres", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<Postres>>, t: Throwable) {
+                Log.e("API_ERROR", "Error: ${t.message}")
+                Toast.makeText(this@PostresActivity, "No se pudo conectar con la API", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
