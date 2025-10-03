@@ -31,7 +31,7 @@ class PostresAdapter(private var listaPostres: List<Postres>) :
         val postre = listaPostres[position]
 
         Glide.with(holder.itemView.context)
-            .load("https://restaurant-api-smoky.vercel.app/api/${postre.imageUrl}")
+            .load(postre.imageUrl)
             .placeholder(R.drawable.ic_launcher_foreground)
             .into(holder.imgPostre)
 

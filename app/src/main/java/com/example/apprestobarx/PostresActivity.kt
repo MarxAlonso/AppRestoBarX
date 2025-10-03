@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apprestobarx.controllers.PostresAdapter
 import com.example.apprestobarx.models.Postres
+import com.example.apprestobarx.network.PostresResponse
 import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -73,16 +74,18 @@ class PostresActivity : AppCompatActivity() {
         recycler.adapter = adapter
 
         // Llamar a la API de postres
-        RetrofitClient.instance.getPostres().enqueue(object : Callback<List<Postres>> {
-            override fun onResponse(call: Call<List<Postres>>, response: Response<List<Postres>>) {
-                if (response.isSuccessful && response.body() != null) {
-                    adapter.updateList(response.body()!!)
+        RetrofitClient.instance.getPostres().enqueue(object : Callback<PostresResponse> {
+            override fun onResponse(call: Call<PostresResponse>, response: Response<PostresResponse>) {
+                if (response.isSuccessful) {
+                    val lista = response.body()?.data ?: emptyList()
+                    adapter.updateList(lista)
                 } else {
                     Toast.makeText(this@PostresActivity, "Error al cargar postres", Toast.LENGTH_SHORT).show()
+                    Log.e("API", "Error: ${response.errorBody()?.string()}")
                 }
             }
 
-            override fun onFailure(call: Call<List<Postres>>, t: Throwable) {
+            override fun onFailure(call: Call<PostresResponse>, t: Throwable) {
                 Log.e("API_ERROR", "Error: ${t.message}")
                 Toast.makeText(this@PostresActivity, "No se pudo conectar con la API", Toast.LENGTH_SHORT).show()
             }
