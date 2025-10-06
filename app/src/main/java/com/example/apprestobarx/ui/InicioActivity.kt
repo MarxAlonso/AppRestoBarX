@@ -1,23 +1,32 @@
-package com.example.apprestobarx
+package com.example.apprestobarx.ui
 
 import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
+import com.example.apprestobarx.controllers.CarruselAdapter
+import com.example.apprestobarx.controllers.CarruselItem
+import com.example.apprestobarx.MainActivity
+import com.example.apprestobarx.R
 import com.example.apprestobarx.controllers.PlatilloAdapter
 import com.example.apprestobarx.models.Platillo
 import com.example.apprestobarx.network.DishesResponse
 import com.example.apprestobarx.network.RetrofitClient
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class InicioActivity : AppCompatActivity() {
 
@@ -34,7 +43,7 @@ class InicioActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigationView)
 
         // Configura toolbar como un ActionBar
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         // Toggle de hamburguesa
@@ -56,6 +65,10 @@ class InicioActivity : AppCompatActivity() {
                     startActivity(Intent(this, PostresActivity::class.java))
                     finish()
                 }
+                R.id.nav_reservas ->{
+                    startActivity(Intent(this, ReservasActivity::class.java))
+                    finish()
+                }
                 R.id.nav_logout -> {
                     Toast.makeText(this, "Cerrando sesión...", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
@@ -69,7 +82,7 @@ class InicioActivity : AppCompatActivity() {
         }
 
         // Carrusel de imágenes
-        val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPagerCarrusel)
+        val viewPager = findViewById<ViewPager2>(R.id.viewPagerCarrusel)
         val listaCarrusel = listOf(
             CarruselItem(
                 R.drawable.cuarto_pollo_brasa,
@@ -113,10 +126,10 @@ class InicioActivity : AppCompatActivity() {
         recycler.adapter = adapter
 
         // Llamada a la API
-        RetrofitClient.instance.getPlatillos().enqueue(object : retrofit2.Callback<DishesResponse> {
+        RetrofitClient.instance.getPlatillos().enqueue(object : Callback<DishesResponse> {
             override fun onResponse(
-                call: retrofit2.Call<DishesResponse>,
-                response: retrofit2.Response<DishesResponse>
+                call: Call<DishesResponse>,
+                response: Response<DishesResponse>
             ) {
                 if (response.isSuccessful) {
                     val lista = response.body()?.data ?: emptyList()
@@ -129,7 +142,7 @@ class InicioActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: retrofit2.Call<DishesResponse>, t: Throwable) {
+            override fun onFailure(call: Call<DishesResponse>, t: Throwable) {
                 Toast.makeText(this@InicioActivity, "Fallo: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })

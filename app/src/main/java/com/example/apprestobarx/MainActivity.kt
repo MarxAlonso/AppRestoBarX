@@ -13,7 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.apprestobarx.InicioActivity
+import com.example.apprestobarx.ui.InicioActivity
 import com.example.apprestobarx.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
