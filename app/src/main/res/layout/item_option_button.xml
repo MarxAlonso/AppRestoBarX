@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingEnd="8dp">
+
+    <Button
+        android:id="@+id/btnOption"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:text="Opción"
+        android:textSize="12sp"
+        android:textColor="#8B0000"
+        android:backgroundTint="@android:color/white"
+        android:stateListAnimator="@null"/>
+</LinearLayout>

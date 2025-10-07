@@ -55,5 +55,6 @@ dependencies {
     implementation(libs.convertergson)
     implementation(libs.glide)
     kapt(libs.glideCompiler)
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 
 }

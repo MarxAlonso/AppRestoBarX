@@ -16,8 +16,8 @@
         android:id="@+id/nav_reservas"
         android:title="📅 Reservas" />
     <item
-        android:id="@+id/nav_contacto"
-        android:title="📞 Contacto" />
+        android:id="@+id/nav_chatbot"
+        android:title="📞 ChatBot" />
     <item
         android:id="@+id/nav_logout"
         android:title="🚪 Cerrar sesión" />
