@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="12dp"
+    app:cardBackgroundColor="@color/background_card">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imgPromocion"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true" />
+
+        <View
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/gradient_overlay"
+            android:layout_alignBottom="@id/imgPromocion"/>
+
+        <TextView
+            android:id="@+id/tvNombrePromocion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Promoción Especial"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_alignBottom="@id/imgPromocion"
+            android:layout_margin="16dp" />
+
+        <TextView
+            android:id="@+id/tvPrecioPromocion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="S/ 59.90"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent_gold"
+            android:background="@drawable/bg_price"
+            android:padding="8dp"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
