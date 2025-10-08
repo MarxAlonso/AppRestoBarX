@@ -10,7 +10,7 @@
         android:id="@+id/nav_postres"
         android:title="🍰 Postres" />
     <item
-        android:id="@+id/nav_promos"
+        android:id="@+id/nav_promociones"
         android:title="🔥 Promociones" />
     <item
         android:id="@+id/nav_reservas"
