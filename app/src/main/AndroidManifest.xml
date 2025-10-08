@@ -15,6 +15,9 @@
         android:theme="@style/Theme.AppRestoBarX"
         tools:targetApi="31">
         <activity
+            android:name=".ui.PromocionesActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.ChatbotActivity"
             android:exported="false" />
         <activity
