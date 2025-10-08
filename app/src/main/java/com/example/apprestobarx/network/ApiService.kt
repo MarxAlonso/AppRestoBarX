@@ -13,4 +13,7 @@ interface ApiService {
 
     @GET("desserts")
     fun getPostres(): Call<PostresResponse>
+
+    @GET("promotions")
+    fun getPromociones(): Call<PromocionesResponse>
 }
