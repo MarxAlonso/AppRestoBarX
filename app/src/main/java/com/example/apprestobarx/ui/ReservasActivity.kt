@@ -74,7 +74,7 @@ class ReservasActivity : AppCompatActivity() {
                 R.id.nav_bebidas -> startActivity(Intent(this, BebidasActivity::class.java))
                 R.id.nav_postres -> startActivity(Intent(this, PostresActivity::class.java))
                 R.id.nav_reservas -> Toast.makeText(this, "Ya estás en Reservas 📅", Toast.LENGTH_SHORT).show()
-                R.id.nav_promociones -> startActivity(Intent(this, PostresActivity::class.java))
+                R.id.nav_promociones -> startActivity(Intent(this, PromocionesActivity::class.java))
                 R.id.nav_chatbot ->{
                     startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()

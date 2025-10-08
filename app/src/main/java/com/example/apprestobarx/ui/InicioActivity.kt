@@ -73,7 +73,7 @@ class InicioActivity : AppCompatActivity() {
                     startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()
                 }
-                R.id.nav_promociones -> startActivity(Intent(this, PostresActivity::class.java))
+                R.id.nav_promociones -> startActivity(Intent(this, PromocionesActivity::class.java))
                 R.id.nav_logout -> {
                     Toast.makeText(this, "Cerrando sesión...", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)

@@ -63,7 +63,7 @@ class PostresActivity : AppCompatActivity() {
                     startActivity(Intent(this, ReservasActivity::class.java))
                     finish()
                 }
-                R.id.nav_promociones -> startActivity(Intent(this, PostresActivity::class.java))
+                R.id.nav_promociones -> startActivity(Intent(this, PromocionesActivity::class.java))
                 R.id.nav_chatbot ->{
                     startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()
