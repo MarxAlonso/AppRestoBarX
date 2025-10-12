@@ -19,6 +19,11 @@ import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.repository.PromocionesRepository
+import kotlinx.coroutines.launch
 
 class PromocionesActivity : AppCompatActivity() {
 
@@ -66,7 +71,7 @@ class PromocionesActivity : AppCompatActivity() {
         cargarPromociones()
     }
 
-    private fun cargarPromociones() {
+    /*private fun cargarPromociones() {
         RetrofitClient.instance.getPromociones().enqueue(object : Callback<PromocionesResponse> {
             override fun onResponse(call: Call<PromocionesResponse>, response: Response<PromocionesResponse>) {
                 if (response.isSuccessful) {
@@ -83,5 +88,33 @@ class PromocionesActivity : AppCompatActivity() {
                 Log.e("API", "Failure: ${t.message}")
             }
         })
+    }*/
+    private fun cargarPromociones() {
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "restobarx.db"
+        ).build()
+
+        val repository = PromocionesRepository(this, db)
+
+        lifecycleScope.launch {
+            val promociones = repository.getPromociones()
+
+            if (promociones.isNotEmpty()) {
+                val lista = promociones.map {
+                    com.example.apprestobarx.models.Promociones(
+                        id = it.id,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price,
+                        imageUrl = it.imageUrl
+                    )
+                }
+                adapter.updateList(lista)
+            } else {
+                Toast.makeText(this@PromocionesActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
