@@ -1,6 +1,7 @@
 package com.example.apprestobarx.data
 
 import androidx.room.*
+import com.example.apprestobarx.data.local.PromocionesEntity
 
 @Dao
 interface PromocionesDao {

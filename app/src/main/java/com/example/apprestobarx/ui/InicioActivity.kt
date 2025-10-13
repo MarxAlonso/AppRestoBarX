@@ -27,6 +27,11 @@ import com.google.android.material.textfield.TextInputEditText
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.repository.PlatillosRepository
+import kotlinx.coroutines.launch
 
 class InicioActivity : AppCompatActivity() {
 
@@ -131,7 +136,7 @@ class InicioActivity : AppCompatActivity() {
         recycler.adapter = adapter
 
         // Llamada a la API
-        RetrofitClient.instance.getPlatillos().enqueue(object : Callback<DishesResponse> {
+        /*RetrofitClient.instance.getPlatillos().enqueue(object : Callback<DishesResponse> {
             override fun onResponse(
                 call: Call<DishesResponse>,
                 response: Response<DishesResponse>
@@ -150,7 +155,36 @@ class InicioActivity : AppCompatActivity() {
             override fun onFailure(call: Call<DishesResponse>, t: Throwable) {
                 Toast.makeText(this@InicioActivity, "Fallo: ${t.message}", Toast.LENGTH_LONG).show()
             }
-        })
+        })*/
+        // Base de datos local
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "restobarx.db"
+        ).build()
+
+        val repository = PlatillosRepository(db)
+
+        lifecycleScope.launch {
+            val platillos = repository.getPlatillos()
+
+            if (platillos.isNotEmpty()) {
+                val lista = platillos.map {
+                    Platillo(
+                        id = it.id,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price,
+                        imageUrl = it.imageUrl
+                    )
+                }
+
+                adapter.updateList(lista)
+                setupSearchFunctionality(etBuscar, lista, adapter)
+            } else {
+                Toast.makeText(this@InicioActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupSearchFunctionality(

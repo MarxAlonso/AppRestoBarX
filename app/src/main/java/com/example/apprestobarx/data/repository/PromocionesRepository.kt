@@ -3,7 +3,7 @@ package com.example.apprestobarx.data.repository
 import android.content.Context
 import android.util.Log
 import com.example.apprestobarx.data.AppDatabase
-import com.example.apprestobarx.data.PromocionesEntity
+import com.example.apprestobarx.data.local.PromocionesEntity
 import com.example.apprestobarx.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
