@@ -8,16 +8,23 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.example.apprestobarx.ui.InicioActivity
 import com.example.apprestobarx.MainActivity
 import com.example.apprestobarx.ui.PostresActivity
 import com.example.apprestobarx.R
 import com.example.apprestobarx.controllers.BebidasAdapter
+import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.repository.BebidasRepository
+import com.example.apprestobarx.models.Bebidas
 import com.example.apprestobarx.network.BebidasResponse
 import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -83,7 +90,8 @@ class BebidasActivity : AppCompatActivity() {
         cargarBebidas()
     }
 
-    private fun cargarBebidas() {
+    //Fnciona solamente llamando a la API de nodejs
+    /*private fun cargarBebidas() {
         RetrofitClient.instance.getBebidas().enqueue(object : Callback<BebidasResponse> {
             override fun onResponse(call: Call<BebidasResponse>, response: Response<BebidasResponse>) {
                 if (response.isSuccessful) {
@@ -100,6 +108,36 @@ class BebidasActivity : AppCompatActivity() {
                 Log.e("API", "Failure: ${t.message}")
             }
         })
+    }*/
+    private fun cargarBebidas() {
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "restobarx.db"
+        ).build()
+
+        val repository = BebidasRepository(this, db)
+
+        lifecycleScope.launch {
+            val bebidas = repository.getBebidas()
+
+            if (bebidas.isNotEmpty()) {
+                val lista = bebidas.map {
+                    com.example.apprestobarx.models.Bebidas(
+                        id = it.id,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price,
+                        imageUrl = it.imageUrl,
+                        type = it.type
+                    )
+                }
+                adapter.updateList(lista)
+            } else {
+                Toast.makeText(this@BebidasActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
 
 }
