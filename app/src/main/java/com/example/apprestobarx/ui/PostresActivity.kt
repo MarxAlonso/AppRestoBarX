@@ -20,6 +20,12 @@ import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.DatabaseProvider
+import com.example.apprestobarx.data.repository.PostresRepository
+import kotlinx.coroutines.launch
 
 class PostresActivity : AppCompatActivity() {
 
@@ -86,7 +92,7 @@ class PostresActivity : AppCompatActivity() {
         recycler.adapter = adapter
 
         // Llamar a la API de postres
-        RetrofitClient.instance.getPostres().enqueue(object : Callback<PostresResponse> {
+        /*RetrofitClient.instance.getPostres().enqueue(object : Callback<PostresResponse> {
             override fun onResponse(call: Call<PostresResponse>, response: Response<PostresResponse>) {
                 if (response.isSuccessful) {
                     val lista = response.body()?.data ?: emptyList()
@@ -101,6 +107,37 @@ class PostresActivity : AppCompatActivity() {
                 Log.e("API_ERROR", "Error: ${t.message}")
                 Toast.makeText(this@PostresActivity, "No se pudo conectar con la API", Toast.LENGTH_SHORT).show()
             }
-        })
+        })*/
+        cargarPostres()
+    }
+    private fun cargarPostres() {
+        /*val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "restobarx.db"
+        ).build()*/
+        val db = DatabaseProvider.getDatabase(this)
+
+        val repository = PostresRepository(this, db)
+
+        lifecycleScope.launch {
+            val postres = repository.getPostres()
+
+            if (postres.isNotEmpty()) {
+                val lista = postres.map {
+                    com.example.apprestobarx.models.Postres(
+                        id = it.id,
+                        name = it.name,
+                        description = it.description,
+                        price = it.price,
+                        imageUrl = it.imageUrl,
+                        calories = it.calories
+                    )
+                }
+                adapter.updateList(lista)
+            } else {
+                Toast.makeText(this@PostresActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

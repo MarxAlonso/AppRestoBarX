@@ -30,6 +30,7 @@ import retrofit2.Response
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.data.repository.PlatillosRepository
 import kotlinx.coroutines.launch
 
@@ -157,11 +158,12 @@ class InicioActivity : AppCompatActivity() {
             }
         })*/
         // Base de datos local
-        val db = Room.databaseBuilder(
+        /*val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "restobarx.db"
-        ).build()
+        ).build()*/
+        val db = DatabaseProvider.getDatabase(this)
 
         val repository = PlatillosRepository(db)
 

@@ -18,6 +18,7 @@ import com.example.apprestobarx.ui.PostresActivity
 import com.example.apprestobarx.R
 import com.example.apprestobarx.controllers.BebidasAdapter
 import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.data.repository.BebidasRepository
 import com.example.apprestobarx.models.Bebidas
 import com.example.apprestobarx.network.BebidasResponse
@@ -110,11 +111,12 @@ class BebidasActivity : AppCompatActivity() {
         })
     }*/
     private fun cargarBebidas() {
-        val db = Room.databaseBuilder(
+        /*val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "restobarx.db"
-        ).build()
+        ).build()*/
+        val db = DatabaseProvider.getDatabase(this)
 
         val repository = BebidasRepository(this, db)
 
@@ -138,6 +140,4 @@ class BebidasActivity : AppCompatActivity() {
             }
         }
     }
-
-
 }

@@ -22,6 +22,7 @@ import retrofit2.Response
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.apprestobarx.data.AppDatabase
+import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.data.repository.PromocionesRepository
 import kotlinx.coroutines.launch
 
@@ -90,11 +91,12 @@ class PromocionesActivity : AppCompatActivity() {
         })
     }*/
     private fun cargarPromociones() {
-        val db = Room.databaseBuilder(
+        /*val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "restobarx.db"
-        ).build()
+        ).build()*/
+        val db = DatabaseProvider.getDatabase(this)
 
         val repository = PromocionesRepository(this, db)
 
