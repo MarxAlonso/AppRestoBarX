@@ -13,8 +13,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.ui.InicioActivity
 import com.example.apprestobarx.databinding.ActivityMainBinding
+import com.example.apprestobarx.ui.RegistroActivity
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,15 +75,23 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.tvRegistrar.setOnClickListener {
+            startActivity(Intent(this, RegistroActivity::class.java))
+        }
     }
 
     private fun isValidCredentials(usuario: String, password: String): Boolean {
-        val validCredentials = mapOf(
-            "admin" to "1234",
-            "restobarx" to "admin",
-            "usuario" to "password"
-        )
-        return validCredentials[usuario.lowercase()] == password
+        val db = DatabaseProvider.getDatabase(this)
+        val usuarioDao = db.usuarioDao()
+
+        var valido = false
+
+        runBlocking {
+            val user = usuarioDao.obtenerUsuario(usuario)
+            valido = user?.password == password
+        }
+
+        return valido
     }
 
     private fun animateLogo(view: View) {
