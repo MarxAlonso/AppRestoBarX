@@ -10,15 +10,19 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.apprestobarx.MainActivity
 import com.example.apprestobarx.R
+import com.example.apprestobarx.models.Reservation
+import com.example.apprestobarx.network.ReservationResponse
+import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ReservasActivity : AppCompatActivity() {
 
@@ -26,7 +30,6 @@ class ReservasActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var toggle: ActionBarDrawerToggle
 
-    // Componentes del formulario
     private lateinit var rgTipoReserva: RadioGroup
     private lateinit var tilDetallesEvento: TextInputLayout
     private lateinit var etFecha: TextInputEditText
@@ -39,11 +42,8 @@ class ReservasActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reservas)
 
-        // Inicializar vistas
         drawerLayout = findViewById(R.id.drawerLayoutReservas)
         navigationView = findViewById(R.id.navigationViewReservas)
-
-        // --- Componentes del Formulario ---
         rgTipoReserva = findViewById(R.id.rgTipoReserva)
         tilDetallesEvento = findViewById(R.id.tilDetallesEvento)
         etFecha = findViewById(R.id.etFecha)
@@ -52,8 +52,6 @@ class ReservasActivity : AppCompatActivity() {
         etPersonas = findViewById(R.id.etPersonas)
         btnConfirmar = findViewById(R.id.btnConfirmarReserva)
 
-
-        // --- Configuración del Toolbar y Menú Lateral ---
         val toolbar: Toolbar = findViewById(R.id.toolbarReservas)
         setSupportActionBar(toolbar)
 
@@ -62,8 +60,6 @@ class ReservasActivity : AppCompatActivity() {
         toggle.syncState()
 
         setupNavigationMenu()
-
-        // --- Lógica del Formulario ---
         setupFormulario()
     }
 
@@ -75,7 +71,7 @@ class ReservasActivity : AppCompatActivity() {
                 R.id.nav_postres -> startActivity(Intent(this, PostresActivity::class.java))
                 R.id.nav_reservas -> Toast.makeText(this, "Ya estás en Reservas 📅", Toast.LENGTH_SHORT).show()
                 R.id.nav_promociones -> startActivity(Intent(this, PromocionesActivity::class.java))
-                R.id.nav_chatbot ->{
+                R.id.nav_chatbot -> {
                     startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()
                 }
@@ -92,7 +88,6 @@ class ReservasActivity : AppCompatActivity() {
     }
 
     private fun setupFormulario() {
-        // Lógica para mostrar/ocultar el campo de detalles del evento
         rgTipoReserva.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rbEvento) {
                 tilDetallesEvento.visibility = TextInputLayout.VISIBLE
@@ -101,26 +96,83 @@ class ReservasActivity : AppCompatActivity() {
             }
         }
 
-        // Lógica para el selector de fecha
-        etFecha.setOnClickListener {
-            mostrarDatePicker()
-        }
+        etFecha.setOnClickListener { mostrarDatePicker() }
+        etHora.setOnClickListener { mostrarTimePicker() }
 
-        // Lógica para el selector de hora
-        etHora.setOnClickListener {
-            mostrarTimePicker()
-        }
-
-        // Lógica del botón de confirmar
         btnConfirmar.setOnClickListener {
             if (validarCampos()) {
-                // Aquí iría la lógica para enviar la reserva a tu API o base de datos
-                val nombre = etNombre.text.toString()
-                val personas = etPersonas.text.toString()
-                Toast.makeText(this, "Reserva para $nombre ($personas personas) confirmada!", Toast.LENGTH_LONG).show()
-                // Opcional: limpiar el formulario o navegar a otra pantalla
+                val tipoReserva = if (rgTipoReserva.checkedRadioButtonId == R.id.rbEvento) "Evento" else "Mesa"
+                val nombre = etNombre.text.toString().trim()
+                val personas = etPersonas.text.toString().toInt()
+                val fecha = etFecha.text.toString().trim()
+                val hora = etHora.text.toString().trim()
+                val detalles = if (tipoReserva == "Evento") findViewById<TextInputEditText>(R.id.etDetallesEvento).text.toString().trim() else null
+
+                val reserva = Reservation(
+                    reservationType = tipoReserva,
+                    fullName = nombre,
+                    numPeople = personas,
+                    reservationDate = fecha,
+                    reservationTime = hora,
+                    eventDetails = detalles
+                )
+
+                enviarReserva(reserva)
             }
         }
+    }
+
+    private fun enviarReserva(reserva: Reservation) {
+        val call = RetrofitClient.instance.createReservation(reserva)
+
+        call.enqueue(object : Callback<ReservationResponse> {
+            override fun onResponse(
+                call: Call<ReservationResponse>,
+                response: Response<ReservationResponse>
+            ) {
+                if (response.isSuccessful && response.body() != null) {
+                    val res = response.body()!!
+                    if (res.success) {
+                        Toast.makeText(
+                            this@ReservasActivity,
+                            "✅ ${res.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        limpiarCampos()
+                    } else {
+                        Toast.makeText(
+                            this@ReservasActivity,
+                            "⚠️ ${res.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else {
+                    Toast.makeText(
+                        this@ReservasActivity,
+                        "Error: ${response.message()}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ReservationResponse>, t: Throwable) {
+                Toast.makeText(
+                    this@ReservasActivity,
+                    "❌ Error al conectar con el servidor: ${t.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        })
+    }
+
+    private fun limpiarCampos() {
+        etNombre.text?.clear()
+        etPersonas.text?.clear()
+        etFecha.text?.clear()
+        etHora.text?.clear()
+        findViewById<TextInputEditText>(R.id.etDetallesEvento).text?.clear()
+        rgTipoReserva.check(R.id.rbMesa)
+        tilDetallesEvento.visibility = TextInputLayout.GONE
     }
 
     private fun validarCampos(): Boolean {
@@ -152,12 +204,10 @@ class ReservasActivity : AppCompatActivity() {
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            // Formateamos la fecha para mostrarla
             val fechaFormateada = String.format("%02d/%02d/%d", selectedDay, selectedMonth + 1, selectedYear)
             etFecha.setText(fechaFormateada)
         }, year, month, day)
 
-        // Opcional: no permitir seleccionar fechas pasadas
         datePickerDialog.datePicker.minDate = System.currentTimeMillis() - 1000
         datePickerDialog.show()
     }
@@ -168,10 +218,9 @@ class ReservasActivity : AppCompatActivity() {
         val minute = calendar.get(Calendar.MINUTE)
 
         val timePickerDialog = TimePickerDialog(this, { _, selectedHour, selectedMinute ->
-            // Formateamos la hora para mostrarla
             val horaFormateada = String.format("%02d:%02d", selectedHour, selectedMinute)
             etHora.setText(horaFormateada)
-        }, hour, minute, true) // true para formato de 24 horas
+        }, hour, minute, true)
 
         timePickerDialog.show()
     }
