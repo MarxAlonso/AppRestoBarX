@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apprestobarx.MainActivity
 import com.example.apprestobarx.R
-import com.example.apprestobarx.controllers.ChatAdapter // **Necesitas crear este adapter**
+import com.example.apprestobarx.controllers.ChatAdapter
 import com.example.apprestobarx.models.Message
 import com.example.apprestobarx.models.Platillo
 import com.example.apprestobarx.models.Bebidas
@@ -22,6 +22,7 @@ import com.example.apprestobarx.models.Postres
 import com.example.apprestobarx.network.DishesResponse
 import com.example.apprestobarx.network.BebidasResponse
 import com.example.apprestobarx.network.PostresResponse
+import com.example.apprestobarx.network.ReservationsListResponse
 import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -120,42 +121,61 @@ class ChatbotActivity : AppCompatActivity() {
 
     // --- Lógica Central del Chatbot ---
     private fun processUserMessage(message: String) {
-        val lowerCaseMessage = message.lowercase()
+        val lowerCaseMessage = message.lowercase().trim()
+
+        // Si el chatbot está esperando el nombre para buscar reserva
+        if (esperandoNombreReserva) {
+            val nombre = message.trim()
+            if (nombre.isBlank()) {
+                addBotMessage("Por favor, ingresa un nombre válido sin espacios vacíos al inicio o al final.")
+                return
+            }
+            buscarReservaPorNombre(nombre)
+            esperandoNombreReserva = false
+            return
+        }
 
         when {
             lowerCaseMessage.contains("hola") || lowerCaseMessage.contains("saludos") -> {
-                addBotMessage("¡Hola de nuevo! ¿Sobre qué deseas saber?",
-                    listOf("Platillos", "Bebidas", "Postres", "Costo de Reservas", "Alquiler del Local"))
+                addBotMessage(
+                    "¡Hola! ¿Sobre qué deseas saber?",
+                    listOf("Platillos", "Bebidas", "Postres", "Costo de Reservas", "Alquiler del Local", "Consultar Reservas")
+                )
             }
 
-            // Reservas o alquiler
-            lowerCaseMessage.contains("reserva") -> {
+            lowerCaseMessage.contains("reserva") && lowerCaseMessage.contains("costo") -> {
                 addBotMessage("El costo de **reservar una mesa** es de **\$$COSTO_RESERVA_MESA** por persona.")
             }
+
+            lowerCaseMessage.contains("consultar") && lowerCaseMessage.contains("reserva") -> {
+                addBotMessage("Perfecto 😊, por favor ingresa el **nombre de la persona** con la que se hizo la reserva.")
+                esperandoNombreReserva = true
+            }
+
             lowerCaseMessage.contains("alquiler") || lowerCaseMessage.contains("evento") -> {
                 addBotMessage("El **alquiler del local** cuesta **\$$COSTO_ALQUILER_LOCAL** por noche.")
             }
 
-            // Consultas generales
+            // Otras funciones ya existentes
             lowerCaseMessage.contains("platillo") && lowerCaseMessage.contains("caro") -> cargarPlatilloExtremo(true)
             lowerCaseMessage.contains("platillo") && lowerCaseMessage.contains("barato") -> cargarPlatilloExtremo(false)
             lowerCaseMessage.contains("bebida") && lowerCaseMessage.contains("cara") -> cargarBebidaExtrema(true)
             lowerCaseMessage.contains("bebida") && lowerCaseMessage.contains("barata") -> cargarBebidaExtrema(false)
             lowerCaseMessage.contains("postre") && lowerCaseMessage.contains("caro") -> cargarPostreExtremo(true)
             lowerCaseMessage.contains("postre") && lowerCaseMessage.contains("barato") -> cargarPostreExtremo(false)
-
-            // 🔹 Nuevas funcionalidades:
             lowerCaseMessage.contains("platillo") -> listarPlatillos()
             lowerCaseMessage.contains("bebida") -> listarBebidas()
-            lowerCaseMessage.contains("postre") && lowerCaseMessage.contains("caloría") && lowerCaseMessage.contains("más") -> postreMasCalorias()
             lowerCaseMessage.contains("postre") -> listarPostres()
 
             else -> {
-                addBotMessage("No entendí bien. ¿Quieres ver Platillos, Bebidas o Postres?",
-                    listOf("Platillos", "Bebidas", "Postres"))
+                addBotMessage(
+                    "No entendí bien. ¿Quieres consultar algo del menú o tus reservas?",
+                    listOf("Platillos", "Bebidas", "Postres", "Consultar Reservas")
+                )
             }
         }
     }
+
 
     // --- Funciones para la API ---
 
@@ -310,6 +330,39 @@ class ChatbotActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<PostresResponse>, t: Throwable) {
                 addBotMessage("Error de conexión al cargar los postres.")
+            }
+        })
+    }
+    private var esperandoNombreReserva = false
+
+    private fun buscarReservaPorNombre(nombre: String) {
+        RetrofitClient.instance.getReservations().enqueue(object : Callback<ReservationsListResponse> {
+            override fun onResponse(call: Call<ReservationsListResponse>, response: Response<ReservationsListResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val reservas = response.body()!!.data
+                    val reservaEncontrada = reservas.find { it.fullName.equals(nombre, ignoreCase = true) }
+
+                    if (reservaEncontrada != null) {
+                        val detalles = """
+                        ✅ *Reserva encontrada*
+                        👤 Nombre: ${reservaEncontrada.fullName}
+                        🪑 Tipo: ${reservaEncontrada.reservationType}
+                        👥 Personas: ${reservaEncontrada.numPeople}
+                        📅 Fecha: ${reservaEncontrada.reservationDate}
+                        🕓 Hora: ${reservaEncontrada.reservationTime}
+                        📝 Detalles: ${reservaEncontrada.eventDetails ?: "Ninguno"}
+                    """.trimIndent()
+                        addBotMessage(detalles)
+                    } else {
+                        addBotMessage("❌ No se encontró ninguna reserva a nombre de **$nombre**.")
+                    }
+                } else {
+                    addBotMessage("⚠️ Ocurrió un error al consultar las reservas.")
+                }
+            }
+
+            override fun onFailure(call: Call<ReservationsListResponse>, t: Throwable) {
+                addBotMessage("❌ Error de conexión con el servidor: ${t.message}")
             }
         })
     }

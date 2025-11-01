@@ -22,4 +22,8 @@ interface ApiService {
 
     @POST("reservations")
     fun createReservation(@Body reservation: Reservation): Call<ReservationResponse>
+
+    @GET("reservations")
+    fun getReservations(): Call<ReservationsListResponse>
+
 }
