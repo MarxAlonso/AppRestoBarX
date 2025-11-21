@@ -2,29 +2,29 @@ package com.example.apprestobarx.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.apprestobarx.ui.InicioActivity
 import com.example.apprestobarx.MainActivity
 import com.example.apprestobarx.R
 import com.example.apprestobarx.controllers.PostresAdapter
-import com.example.apprestobarx.network.PostresResponse
-import com.example.apprestobarx.network.RetrofitClient
-import com.google.android.material.navigation.NavigationView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import com.example.apprestobarx.data.AppDatabase
 import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.data.repository.PostresRepository
+import com.example.apprestobarx.models.Postres
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.launch
 
 class PostresActivity : AppCompatActivity() {
@@ -34,6 +34,11 @@ class PostresActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: PostresAdapter
+    
+    private lateinit var etBuscar: EditText
+    private lateinit var spPrecio: Spinner
+    
+    private var originalPostres: List<Postres> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,25 +95,55 @@ class PostresActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = PostresAdapter(emptyList())
         recycler.adapter = adapter
+        
+        etBuscar = findViewById(R.id.etBuscarPostre)
+        spPrecio = findViewById(R.id.spPrecioPostre)
 
-        // Llamar a la API de postres
-        /*RetrofitClient.instance.getPostres().enqueue(object : Callback<PostresResponse> {
-            override fun onResponse(call: Call<PostresResponse>, response: Response<PostresResponse>) {
-                if (response.isSuccessful) {
-                    val lista = response.body()?.data ?: emptyList()
-                    adapter.updateList(lista)
-                } else {
-                    Toast.makeText(this@PostresActivity, "Error al cargar postres", Toast.LENGTH_SHORT).show()
-                    Log.e("API", "Error: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<PostresResponse>, t: Throwable) {
-                Log.e("API_ERROR", "Error: ${t.message}")
-                Toast.makeText(this@PostresActivity, "No se pudo conectar con la API", Toast.LENGTH_SHORT).show()
-            }
-        })*/
         cargarPostres()
+    }
+    
+    private fun setupFilters() {
+        // Configurar Spinner de Precios
+        val precios = listOf("Todos", "Menor a 15", "15 - 30", "Mayor a 30")
+        val precioAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, precios)
+        precioAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spPrecio.adapter = precioAdapter
+
+        // Listeners
+        etBuscar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterPostres()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        spPrecio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                filterPostres()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun filterPostres() {
+        val query = etBuscar.text.toString().lowercase()
+        val precioSeleccionado = spPrecio.selectedItem.toString()
+
+        val listaFiltrada = originalPostres.filter { postre ->
+            val matchesName = postre.name.lowercase().contains(query)
+            
+            val matchesPrice = when (precioSeleccionado) {
+                "Menor a 15" -> postre.price < 15
+                "15 - 30" -> postre.price in 15.0..30.0
+                "Mayor a 30" -> postre.price > 30
+                else -> true
+            }
+
+            matchesName && matchesPrice
+        }
+        
+        adapter.updateList(listaFiltrada)
     }
     private fun cargarPostres() {
         /*val db = Room.databaseBuilder(
@@ -124,7 +159,7 @@ class PostresActivity : AppCompatActivity() {
             val postres = repository.getPostres()
 
             if (postres.isNotEmpty()) {
-                val lista = postres.map {
+                originalPostres = postres.map {
                     com.example.apprestobarx.models.Postres(
                         id = it.id,
                         name = it.name,
@@ -134,7 +169,8 @@ class PostresActivity : AppCompatActivity() {
                         calories = it.calories
                     )
                 }
-                adapter.updateList(lista)
+                adapter.updateList(originalPostres)
+                setupFilters()
             } else {
                 Toast.makeText(this@PostresActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
             }

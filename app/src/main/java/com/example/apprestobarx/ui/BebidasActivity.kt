@@ -3,6 +3,13 @@ package com.example.apprestobarx.ui
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -11,24 +18,16 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.apprestobarx.ui.InicioActivity
 import com.example.apprestobarx.MainActivity
 import com.example.apprestobarx.ui.PostresActivity
 import com.example.apprestobarx.R
 import com.example.apprestobarx.controllers.BebidasAdapter
-import com.example.apprestobarx.data.AppDatabase
 import com.example.apprestobarx.data.DatabaseProvider
 import com.example.apprestobarx.data.repository.BebidasRepository
 import com.example.apprestobarx.models.Bebidas
-import com.example.apprestobarx.network.BebidasResponse
-import com.example.apprestobarx.network.RetrofitClient
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class BebidasActivity : AppCompatActivity() {
 
@@ -37,6 +36,12 @@ class BebidasActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: BebidasAdapter
+    
+    private lateinit var etBuscar: EditText
+    private lateinit var spPrecio: Spinner
+    private lateinit var spTipo: Spinner
+    
+    private var originalBebidas: List<Bebidas> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,8 +92,69 @@ class BebidasActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = BebidasAdapter(emptyList())
         recycler.adapter = adapter
+        
+        etBuscar = findViewById(R.id.etBuscarBebida)
+        spPrecio = findViewById(R.id.spPrecioBebida)
+        spTipo = findViewById(R.id.spTipoBebida)
 
         cargarBebidas()
+    }
+
+    private fun setupFilters() {
+        // Configurar Spinner de Precios
+        val precios = listOf("Todos", "Menor a 20", "20 - 50", "Mayor a 50")
+        val precioAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, precios)
+        precioAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spPrecio.adapter = precioAdapter
+
+        // Configurar Spinner de Tipos (Dinámico)
+        val tipos = mutableListOf("Todos")
+        tipos.addAll(originalBebidas.map { it.type }.distinct().sorted())
+        val tipoAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tipos)
+        tipoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spTipo.adapter = tipoAdapter
+
+        // Listeners
+        etBuscar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterBebidas()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        val spinnerListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                filterBebidas()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        spPrecio.onItemSelectedListener = spinnerListener
+        spTipo.onItemSelectedListener = spinnerListener
+    }
+
+    private fun filterBebidas() {
+        val query = etBuscar.text.toString().lowercase()
+        val precioSeleccionado = spPrecio.selectedItem.toString()
+        val tipoSeleccionado = spTipo.selectedItem.toString()
+
+        val listaFiltrada = originalBebidas.filter { bebida ->
+            val matchesName = bebida.name.lowercase().contains(query)
+            
+            val matchesPrice = when (precioSeleccionado) {
+                "Menor a 20" -> bebida.price < 20
+                "20 - 50" -> bebida.price in 20.0..50.0
+                "Mayor a 50" -> bebida.price > 50
+                else -> true
+            }
+
+            val matchesType = if (tipoSeleccionado == "Todos") true else bebida.type == tipoSeleccionado
+
+            matchesName && matchesPrice && matchesType
+        }
+        
+        adapter.updateList(listaFiltrada)
     }
 
     //Fnciona solamente llamando a la API de nodejs
@@ -124,7 +190,7 @@ class BebidasActivity : AppCompatActivity() {
             val bebidas = repository.getBebidas()
 
             if (bebidas.isNotEmpty()) {
-                val lista = bebidas.map {
+                originalBebidas = bebidas.map {
                     com.example.apprestobarx.models.Bebidas(
                         id = it.id,
                         name = it.name,
@@ -134,7 +200,8 @@ class BebidasActivity : AppCompatActivity() {
                         type = it.type
                     )
                 }
-                adapter.updateList(lista)
+                adapter.updateList(originalBebidas)
+                setupFilters()
             } else {
                 Toast.makeText(this@BebidasActivity, "Sin datos disponibles", Toast.LENGTH_SHORT).show()
             }
