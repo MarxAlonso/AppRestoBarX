@@ -34,12 +34,56 @@
             app:layout_constraintStart_toStartOf="parent"
             android:layout_margin="16dp"/>
 
+        <EditText
+            android:id="@+id/etBuscarBebida"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Buscar bebida..."
+            android:textColorHint="#CCCCCC"
+            android:textColor="@android:color/white"
+            android:background="@android:drawable/edit_text"
+            android:backgroundTint="@android:color/white"
+            android:padding="10dp"
+            android:layout_margin="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTituloBebidas"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/layoutFiltrosBebidas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            app:layout_constraintTop_toBottomOf="@id/etBuscarBebida"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <Spinner
+                android:id="@+id/spPrecioBebida"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"
+                android:backgroundTint="@android:color/white"
+                android:minHeight="48dp"/>
+
+            <Spinner
+                android:id="@+id/spTipoBebida"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"
+                android:backgroundTint="@android:color/white"
+                android:minHeight="48dp"/>
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerBebidas"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:padding="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTituloBebidas"
+            app:layout_constraintTop_toBottomOf="@id/layoutFiltrosBebidas"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
