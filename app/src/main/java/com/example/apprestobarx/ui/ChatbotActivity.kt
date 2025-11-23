@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -170,6 +171,10 @@ class ChatbotActivity : AppCompatActivity() {
                 addBotMessage("Por favor, elige un número válido de la lista anterior.")
             }
             esperandoSeleccionReserva = false
+            return
+        }
+        if (lowerCaseMessage.contains("whatsapp")) {
+            reservaSeleccionada?.let { enviarWhatsApp(it) }
             return
         }
 
@@ -431,8 +436,8 @@ class ChatbotActivity : AppCompatActivity() {
     """.trimIndent()
 
         addBotMessage(
-            "$detalles\n\n¿Deseas recibir una notificación una hora antes?",
-            listOf("Sí, notificarme", "No, gracias")
+            "$detalles\n\n¿Deseas recibir una notificación una hora antes o comunicarte por WhatsApp?",
+            listOf("Sí, notificarme", "No, gracias", "Contactar por WhatsApp")
         )
 
         reservaSeleccionada = reserva
@@ -534,5 +539,31 @@ class ChatbotActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun enviarWhatsApp(reserva: Reservation) {
+
+        val numeroEmpresa = "51922061911"  // +51 Perú (sin +)
+        val mensaje = """
+        Hola, deseo confirmar mi reserva:
+        👤 Nombre: ${reserva.fullName}
+        🪑 Tipo: ${reserva.reservationType}
+        👥 Personas: ${reserva.numPeople}
+        📅 Fecha: ${reserva.reservationDate}
+        🕓 Hora: ${reserva.reservationTime}
+        
+        Pago será en efectivo o billetera digital el día del evento.
+    """.trimIndent()
+
+        val url = "https://wa.me/$numeroEmpresa?text=${Uri.encode(mensaje)}"
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(url)
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "No se pudo abrir WhatsApp", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 }

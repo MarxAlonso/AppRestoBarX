@@ -77,6 +77,10 @@ class BebidasActivity : AppCompatActivity() {
                     startActivity(Intent(this, ChatbotActivity::class.java))
                     finish()
                 }
+                R.id.nav_momentos ->{
+                    startActivity(Intent(this, MomentosInolvidablesActivity::class.java))
+                    finish()
+                }
                 R.id.nav_logout -> {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
