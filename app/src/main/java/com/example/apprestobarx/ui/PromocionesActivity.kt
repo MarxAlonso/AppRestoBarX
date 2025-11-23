@@ -54,6 +54,10 @@ class PromocionesActivity : AppCompatActivity() {
                 R.id.nav_postres -> startActivity(Intent(this, PostresActivity::class.java))
                 R.id.nav_promociones -> Toast.makeText(this, "Ya estás en Promociones 🎉", Toast.LENGTH_SHORT).show()
                 R.id.nav_chatbot -> startActivity(Intent(this, ChatbotActivity::class.java))
+                R.id.nav_momentos ->{
+                    startActivity(Intent(this, MomentosInolvidablesActivity::class.java))
+                    finish()
+                }
                 R.id.nav_logout -> {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

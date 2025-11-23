@@ -19,6 +19,9 @@
         android:id="@+id/nav_chatbot"
         android:title="📞 ChatBot" />
     <item
+        android:id="@+id/nav_momentos"
+        android:title="📞 Momentos" />
+    <item
         android:id="@+id/nav_logout"
         android:title="🚪 Cerrar sesión" />
 </menu>
