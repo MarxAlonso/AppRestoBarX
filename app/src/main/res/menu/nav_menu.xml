@@ -22,6 +22,9 @@
         android:id="@+id/nav_momentos"
         android:title="📞 Momentos" />
     <item
+        android:id="@+id/nav_ubicacion"
+        android:title="📞 Ubicacion" />
+    <item
         android:id="@+id/nav_logout"
         android:title="🚪 Cerrar sesión" />
 </menu>

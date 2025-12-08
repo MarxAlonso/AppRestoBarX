@@ -83,6 +83,10 @@ class PostresActivity : AppCompatActivity() {
                     startActivity(Intent(this, MomentosInolvidablesActivity::class.java))
                     finish()
                 }
+                R.id.nav_ubicacion ->{
+                    startActivity(Intent(this, MapaActivity::class.java))
+                    finish()
+                }
                 R.id.nav_logout -> {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

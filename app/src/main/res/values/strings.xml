@@ -8,4 +8,5 @@
     <string name="hint_usuario">Usuario</string>
     <string name="hint_password">Contraseña</string>
     <string name="btn_login">INGRESAR</string>
+    <string name="google_maps_key" translatable="false">AIzaSyD1EIuZ7OL2GbyZRVj5fM2HUysew9tTKLQ</string>
 </resources>
