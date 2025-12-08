@@ -115,6 +115,10 @@ class ChatbotActivity : AppCompatActivity() {
                 R.id.nav_reservas -> startActivity(Intent(this, ReservasActivity::class.java))
                 R.id.nav_chatbot -> Toast.makeText(this, "Ya estás en Chat Bot 📅", Toast.LENGTH_SHORT).show()
                 R.id.nav_promociones -> startActivity(Intent(this, PromocionesActivity::class.java))
+                R.id.nav_ubicacion ->{
+                    startActivity(Intent(this, MapaActivity::class.java))
+                    finish()
+                }
                 R.id.nav_logout -> {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
